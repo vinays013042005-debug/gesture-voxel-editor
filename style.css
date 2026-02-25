@@ -2,6 +2,32 @@ body {
   margin: 0;
   overflow: hidden;
 }
-canvas {
-  display: block;
+
+/* Camera */
+.input_video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+/* Skeleton */
+#handCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* 3D */
+#threeCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  pointer-events: none;
 }
