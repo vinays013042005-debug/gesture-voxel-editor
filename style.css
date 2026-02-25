@@ -3,7 +3,7 @@ body {
   overflow: hidden;
 }
 
-/* Camera */
+/* Camera background */
 .input_video {
   position: fixed;
   top: 0;
@@ -14,7 +14,7 @@ body {
   z-index: 1;
 }
 
-/* Skeleton */
+/* Skeleton overlay */
 #handCanvas {
   position: fixed;
   top: 0;
@@ -23,7 +23,7 @@ body {
   pointer-events: none;
 }
 
-/* 3D */
+/* 3D overlay */
 #threeCanvas {
   position: fixed;
   top: 0;
