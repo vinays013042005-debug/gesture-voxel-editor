@@ -1,23 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Gesture Voxel Editor</title>
-
-  <!-- Three.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-  <!-- MediaPipe -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-
-  <link rel="stylesheet" href="style.css">
-</head>
 <body>
 
-  <video class="input_video" style="display:none;"></video>
+  <video class="input_video" autoplay playsinline></video>
+
+  <!-- Hand Skeleton Canvas -->
+  <canvas id="handCanvas"></canvas>
+
+  <!-- 3D Canvas -->
   <canvas id="threeCanvas"></canvas>
 
   <script src="main.js"></script>
-
 </body>
-</html>
