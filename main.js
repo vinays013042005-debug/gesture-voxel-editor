@@ -1,6 +1,7 @@
-// ----------------------------
-// THREE.JS SETUP
-// ----------------------------
+// ===============================
+// THREE.JS SETUP (AR STYLE)
+// ===============================
+
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
@@ -12,11 +13,11 @@ const camera = new THREE.PerspectiveCamera(
 
 const renderer = new THREE.WebGLRenderer({
   canvas: document.getElementById("threeCanvas"),
-  antialias: true
+  alpha: true
 });
 
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0x111111);
+renderer.setClearColor(0x000000, 0);
 
 camera.position.z = 5;
 
@@ -29,11 +30,22 @@ scene.add(light);
 const gridHelper = new THREE.GridHelper(10, 10);
 scene.add(gridHelper);
 
-// ----------------------------
+// Resize handling
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  handCanvas.width = window.innerWidth;
+  handCanvas.height = window.innerHeight;
+});
+
+// ===============================
 // VOXEL FUNCTION
-// ----------------------------
+// ===============================
+
 function addVoxel(x, y, z) {
-  const geometry = new THREE.BoxGeometry(1, 1, 1);
+  const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
   const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
   const cube = new THREE.Mesh(geometry, material);
 
@@ -46,18 +58,29 @@ function addVoxel(x, y, z) {
   scene.add(cube);
 }
 
-// ----------------------------
+// ===============================
 // RENDER LOOP
-// ----------------------------
+// ===============================
+
 function animate() {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
 }
 animate();
 
-// ----------------------------
-// MEDIAPIPE HAND TRACKING
-// ----------------------------
+// ===============================
+// SKELETON CANVAS SETUP
+// ===============================
+
+const handCanvas = document.getElementById("handCanvas");
+const handCtx = handCanvas.getContext("2d");
+
+handCanvas.width = window.innerWidth;
+handCanvas.height = window.innerHeight;
+
+// ===============================
+// MEDIAPIPE SETUP
+// ===============================
 
 const videoElement = document.querySelector(".input_video");
 
@@ -74,22 +97,38 @@ hands.setOptions({
   minTrackingConfidence: 0.7
 });
 
-// Detect results
+// Prevent multiple cube spam
+let lastPinchTime = 0;
+
 hands.onResults((results) => {
+
+  // Clear skeleton canvas
+  handCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
+
   if (results.multiHandLandmarks.length > 0) {
+
     const landmarks = results.multiHandLandmarks[0];
 
-    if (isPinching(landmarks)) {
-      const x = (landmarks[8].x - 0.5) * 10;
-      const y = (0.5 - landmarks[8].y) * 10;
-      const z = 0;
+    drawSkeleton(landmarks);
 
-      addVoxel(x, y, z);
+    // Pinch detection
+    if (isPinching(landmarks)) {
+
+      const now = Date.now();
+
+      if (now - lastPinchTime > 500) {   // 0.5 sec delay
+        const x = (landmarks[8].x - 0.5) * 10;
+        const y = (0.5 - landmarks[8].y) * 10;
+        const z = 0;
+
+        addVoxel(x, y, z);
+        lastPinchTime = now;
+      }
     }
   }
 });
 
-// Camera
+// Start camera
 const cameraUtils = new Camera(videoElement, {
   onFrame: async () => {
     await hands.send({ image: videoElement });
@@ -97,12 +136,15 @@ const cameraUtils = new Camera(videoElement, {
   width: 640,
   height: 480
 });
+
 cameraUtils.start();
 
-// ----------------------------
-// PINCH DETECTION
-// ----------------------------
+// ===============================
+// PINCH DETECTION FUNCTION
+// ===============================
+
 function isPinching(landmarks) {
+
   const thumbTip = landmarks[4];
   const indexTip = landmarks[8];
 
@@ -112,4 +154,47 @@ function isPinching(landmarks) {
   );
 
   return distance < 0.05;
+}
+
+// ===============================
+// DRAW HAND SKELETON
+// ===============================
+
+function drawSkeleton(landmarks) {
+
+  const connections = [
+    [0,1],[1,2],[2,3],[3,4],
+    [0,5],[5,6],[6,7],[7,8],
+    [0,9],[9,10],[10,11],[11,12],
+    [0,13],[13,14],[14,15],[15,16],
+    [0,17],[17,18],[18,19],[19,20]
+  ];
+
+  handCtx.strokeStyle = "lime";
+  handCtx.lineWidth = 3;
+
+  // Draw lines
+  connections.forEach(([start, end]) => {
+    const x1 = landmarks[start].x * window.innerWidth;
+    const y1 = landmarks[start].y * window.innerHeight;
+
+    const x2 = landmarks[end].x * window.innerWidth;
+    const y2 = landmarks[end].y * window.innerHeight;
+
+    handCtx.beginPath();
+    handCtx.moveTo(x1, y1);
+    handCtx.lineTo(x2, y2);
+    handCtx.stroke();
+  });
+
+  // Draw points
+  landmarks.forEach(point => {
+    const x = point.x * window.innerWidth;
+    const y = point.y * window.innerHeight;
+
+    handCtx.beginPath();
+    handCtx.arc(x, y, 6, 0, 2 * Math.PI);
+    handCtx.fillStyle = "red";
+    handCtx.fill();
+  });
 }
