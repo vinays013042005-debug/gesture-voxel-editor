@@ -1,6 +1,6 @@
-// ===============================
-// THREE.JS SETUP (AR STYLE)
-// ===============================
+// ============================
+// THREE.JS SETUP
+// ============================
 
 const scene = new THREE.Scene();
 
@@ -30,7 +30,7 @@ scene.add(light);
 const gridHelper = new THREE.GridHelper(10, 10);
 scene.add(gridHelper);
 
-// Resize handling
+// Resize
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -40,9 +40,9 @@ window.addEventListener("resize", () => {
   handCanvas.height = window.innerHeight;
 });
 
-// ===============================
-// VOXEL FUNCTION
-// ===============================
+// ============================
+// ADD VOXEL
+// ============================
 
 function addVoxel(x, y, z) {
   const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
@@ -58,9 +58,9 @@ function addVoxel(x, y, z) {
   scene.add(cube);
 }
 
-// ===============================
+// ============================
 // RENDER LOOP
-// ===============================
+// ============================
 
 function animate() {
   requestAnimationFrame(animate);
@@ -68,9 +68,9 @@ function animate() {
 }
 animate();
 
-// ===============================
-// SKELETON CANVAS SETUP
-// ===============================
+// ============================
+// HAND SKELETON CANVAS
+// ============================
 
 const handCanvas = document.getElementById("handCanvas");
 const handCtx = handCanvas.getContext("2d");
@@ -78,9 +78,9 @@ const handCtx = handCanvas.getContext("2d");
 handCanvas.width = window.innerWidth;
 handCanvas.height = window.innerHeight;
 
-// ===============================
-// MEDIAPIPE SETUP
-// ===============================
+// ============================
+// MEDIAPIPE HAND TRACKING
+// ============================
 
 const videoElement = document.querySelector(".input_video");
 
@@ -97,12 +97,10 @@ hands.setOptions({
   minTrackingConfidence: 0.7
 });
 
-// Prevent multiple cube spam
 let lastPinchTime = 0;
 
 hands.onResults((results) => {
 
-  // Clear skeleton canvas
   handCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
 
   if (results.multiHandLandmarks.length > 0) {
@@ -111,12 +109,11 @@ hands.onResults((results) => {
 
     drawSkeleton(landmarks);
 
-    // Pinch detection
     if (isPinching(landmarks)) {
 
       const now = Date.now();
 
-      if (now - lastPinchTime > 500) {   // 0.5 sec delay
+      if (now - lastPinchTime > 500) {
         const x = (landmarks[8].x - 0.5) * 10;
         const y = (0.5 - landmarks[8].y) * 10;
         const z = 0;
@@ -139,12 +136,11 @@ const cameraUtils = new Camera(videoElement, {
 
 cameraUtils.start();
 
-// ===============================
-// PINCH DETECTION FUNCTION
-// ===============================
+// ============================
+// PINCH DETECTION
+// ============================
 
 function isPinching(landmarks) {
-
   const thumbTip = landmarks[4];
   const indexTip = landmarks[8];
 
@@ -156,9 +152,9 @@ function isPinching(landmarks) {
   return distance < 0.05;
 }
 
-// ===============================
-// DRAW HAND SKELETON
-// ===============================
+// ============================
+// DRAW SKELETON
+// ============================
 
 function drawSkeleton(landmarks) {
 
@@ -173,7 +169,6 @@ function drawSkeleton(landmarks) {
   handCtx.strokeStyle = "lime";
   handCtx.lineWidth = 3;
 
-  // Draw lines
   connections.forEach(([start, end]) => {
     const x1 = landmarks[start].x * window.innerWidth;
     const y1 = landmarks[start].y * window.innerHeight;
@@ -187,7 +182,6 @@ function drawSkeleton(landmarks) {
     handCtx.stroke();
   });
 
-  // Draw points
   landmarks.forEach(point => {
     const x = point.x * window.innerWidth;
     const y = point.y * window.innerHeight;
