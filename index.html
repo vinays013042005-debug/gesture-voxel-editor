@@ -1,12 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Step 1 - Camera Test</title>
+
+  <!-- MediaPipe -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js"></script>
+</head>
+
 <body>
 
-  <video class="input_video" autoplay playsinline></video>
-
-  <!-- Hand Skeleton Canvas -->
-  <canvas id="handCanvas"></canvas>
-
-  <!-- 3D Canvas -->
-  <canvas id="threeCanvas"></canvas>
+  <video class="input_video" autoplay playsinline
+    style="width:100%; height:100%; position:fixed; top:0; left:0; object-fit:cover;">
+  </video>
 
   <script src="main.js"></script>
+
 </body>
+</html>
